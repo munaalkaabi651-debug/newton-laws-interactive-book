@@ -472,8 +472,7 @@
 
             try { renderer = new THREE.WebGLRenderer({ antialias: true }); }
             catch (error) {
-                container.innerHTML = '<p style="color:white;padding:24px">يتطلب المختبر متصفحًا يدعم الرسوم ثلاثية الأبعاد WebGL. جرّبي متصفحًا آخر أو تفعيل تسريع الرسومات.</p>';
-                return;
+                renderer = createAccessibleRenderer(container);
             }
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.shadowMap.enabled = true;
@@ -498,6 +497,48 @@
 
             // Start Animation Loop
             animateLab();
+        }
+
+        // Canvas fallback keeps all three experiments usable without WebGL.
+        function createAccessibleRenderer(container) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            return {
+                domElement: canvas, shadowMap: {}, dispose() {},
+                setSize(w, h) { canvas.width = w; canvas.height = h; },
+                render() {
+                    const w = canvas.width, h = canvas.height;
+                    ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, w, h);
+                    ctx.textAlign = 'center'; ctx.font = 'bold 16px Cairo, sans-serif';
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.fillText('عرض توضيحي بديل • دون تسريع الرسومات', w / 2, 30);
+                    const scale = w / 34, base = h * 0.68;
+                    ctx.fillStyle = '#475569'; ctx.fillRect(0, base + 25, w, 12);
+                    if (currentLab === 1 && labObjects.car) {
+                        const x = w / 2 + labObjects.car.position.x * scale;
+                        ctx.fillStyle = '#14b8a6'; ctx.fillRect(x - 45, base - 25, 90, 42);
+                        ctx.fillStyle = '#f43f5e';
+                        ctx.beginPath(); ctx.arc(x + labObjects.passenger.position.x * scale, base - 42, 12, 0, Math.PI * 2); ctx.fill();
+                        ctx.fillRect(x + labObjects.passenger.position.x * scale - 8, base - 32, 16, 25);
+                        ctx.fillStyle = '#94a3b8';
+                        for (const offset of [-28, 28]) { ctx.beginPath(); ctx.arc(x + offset, base + 20, 12, 0, Math.PI * 2); ctx.fill(); }
+                    } else if (currentLab === 2 && labObjects.cart) {
+                        const x = w / 2 + labObjects.cart.position.x * scale;
+                        ctx.fillStyle = '#a78bfa'; ctx.fillRect(x - 25, base - 32, 50, 42);
+                        ctx.fillStyle = '#94a3b8';
+                        for (const offset of [-17, 17]) { ctx.beginPath(); ctx.arc(x + offset, base + 18, 9, 0, Math.PI * 2); ctx.fill(); }
+                        ctx.fillStyle = '#2dd4bf'; ctx.fillText('القوة ←', Math.min(w - 55, x + 65), base - 48);
+                    } else if (currentLab === 3 && labObjects.rocket) {
+                        const x = w / 2, y = base - (labObjects.rocket.position.y + 0.5) * h / 11;
+                        ctx.fillStyle = '#fbbf24'; ctx.beginPath();
+                        ctx.moveTo(x, y - 65); ctx.lineTo(x - 20, y - 28); ctx.lineTo(x - 20, y + 10); ctx.lineTo(x + 20, y + 10); ctx.lineTo(x + 20, y - 28); ctx.closePath(); ctx.fill();
+                        if (labState.rocketFired) {
+                            ctx.fillStyle = '#fb923c'; ctx.beginPath(); ctx.moveTo(x - 16,y + 12); ctx.lineTo(x,y + 60); ctx.lineTo(x + 16,y + 12); ctx.closePath(); ctx.fill();
+                            ctx.fillStyle = '#fde68a'; ctx.fillText('↑ قوة الغازات على الصاروخ', x + 115, y - 50); ctx.fillText('↓ قوة الصاروخ على الغازات', x + 115, y + 45);
+                        }
+                    }
+                }
+            };
         }
 
         function onWindowResize() {
