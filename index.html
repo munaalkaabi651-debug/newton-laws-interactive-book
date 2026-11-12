@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلتنا في عالم قوانين نيوتن للحركة - الصف السابع</title>
+    <!-- Tailwind CSS for modern styling and responsiveness -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo for clear Arabic typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Three.js for 3D physics simulations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            overflow-x: hidden;
+        }
+        .book-container {
+            perspective: 2000px;
+        }
+        .book {
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+        .page-shadow {
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.05), 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0d9488;
+            border-radius: 4px;
+        }
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-[#fdfbf7] min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-gradient-to-r from-teal-700 via-teal-600 to-indigo-800 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                    <i class="fa-solid fa-atom text-2xl text-teal-200 animate-spin" style="animation-duration: 10s;"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl">رحلتنا في عالم قوانين نيوتن</h1>
+                    <p class="text-xs text-teal-100">مجمع زايد التعليمي – الساف | الصف السابع (بريدج) | المعلمة: منى خميس علي</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 space-x-reverse mt-2 sm:mt-0">
+                <button onclick="switchView('intro')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-home"></i> الرئيسية
+                </button>
+                <button onclick="switchView('book')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-book-open"></i> الكتاب التفاعلي
+                </button>
+                <button onclick="switchView('labs')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-flask"></i> المختبرات الافتراضية
+                </button>
+                <button onclick="switchView('quiz')" class="px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-slate-900 rounded-lg text-sm font-bold transition shadow flex items-center gap-1.5">
+                    <i class="fa-solid fa-trophy"></i> تحدي عالمة نيوتن
+                </button>
+                <button onclick="toggleAudioGuide()" id="audioBtn" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition flex items-center gap-1.5" title="الترحيب الصوتي">
+                    <i class="fa-solid fa-volume-high" id="audioIcon"></i> <span id="audioText">الصوت</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 md:p-6 relative">
+
+        <!-- 1. INTRO VIEW -->
+        <section id="view-intro" class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl p-6 md:p-10 border border-teal-100 transition-all duration-500 my-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-6 text-right">
+                    <span class="inline-block bg-teal-100 text-teal-800 text-xs px-3 py-1.5 rounded-full font-bold">العام الدراسي 2026–2027 | المنهج الإماراتي</span>
+                    <h2 class="text-3xl md:text-4xl font-black text-slate-800 leading-tight">رحلتنا في عالم قوانين نيوتن للحركة</h2>
+                    <p class="text-slate-600 text-base leading-relaxed">
+                        أهلاً بكِ في البيئة التعليمية الرقمية المتقدمة. تجربة تفاعلية ثلاثية الأبعاد تجمع بين دراسة المفاهيم الفيزيائية وتجارب المختبر الافتراضي الحية.
+                    </p>
+                    <div class="bg-purple-50 border-r-4 border-purple-500 p-4 rounded-l-xl">
+                        <p class="text-sm text-purple-900 font-semibold">
+                            <i class="fa-solid fa-circle-info ml-1 text-purple-600"></i> رسالة ترحيبية: «مرحبًا بكِ أيتها العالمة الصغيرة في رحلة ممتعة لاكتشاف قوانين نيوتن الثلاثة للحركة. هيا نلاحظ ونجرب ونفسر!»
+                        </p>
+                    </div>
+                    <div class="pt-4 flex flex-wrap gap-4">
+                        <button onclick="switchView('book'); playWelcomeVoice();" class="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition flex items-center gap-3 text-lg">
+                            <span>ابدئي الرحلة العلمية</span>
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <button onclick="switchView('labs')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold px-6 py-3.5 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-flask"></i> المختبر الفوري
+                        </button>
+                    </div>
+                </div>
+                <div class="relative h-72 md:h-96 rounded-2xl overflow-hidden shadow-inner bg-gradient-to-br from-teal-900 to-indigo-950 flex items-center justify-center p-4">
+                    <!-- 3D Canvas / Animated Preview Container -->
+                    <div id="intro-canvas-container" class="w-full h-full rounded-xl overflow-hidden relative">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-6 bg-black/30 backdrop-blur-[2px]">
+                            <div class="w-20 h-20 bg-teal-500/30 rounded-full flex items-center justify-center mb-4 border border-teal-300/50 animate-pulse">
+                                <i class="fa-solid fa-book text-4xl text-teal-200"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">كتاب نيوتن المجسم التفاعلي</h3>
+                            <p class="text-xs text-teal-200 max-w-xs">صفحات ثلاثية الأبعاد، محاكاة حقيقية، وأسئلة تفاعلية مستوحاة من أحدث المناهج.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. INTERACTIVE BOOK VIEW -->
+        <section id="view-book" class="w-full max-w-6xl hidden flex-col items-center">
+            <div class="w-full flex justify-between items-center mb-4 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex items-center gap-2">
+                    <button onclick="changePage(-1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold text-sm transition flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-right"></i> الصفحة السابقة
+                    </button>
+                    <button onclick="changePage(1)" class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-semibold text-sm transition flex items-center gap-1">
+                        الصفحة التالية <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+                <div class="text-sm font-bold text-teal-800 bg-teal-50 px-4 py-1.5 rounded-full border border-teal-200">
+                    الصفحة <span id="current-page-num">1</span> من 4
+                </div>
+            </div>
+
+            <!-- Book Spread Container -->
+            <div class="w-full bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 md:p-10 min-h-[580px] flex flex-col justify-between relative book-container">
+                
+                <!-- Page Content Holder -->
+                <div id="book-page-content" class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <!-- Dynamic Page Content Injected via JS -->
+                </div>
+
+                <!-- Page Footer Indicator -->
+                <div class="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
+                    <span>مادة العلوم المتكاملة - الصف السابع</span>
+                    <span>سلسلة قوانين نيوتن للحركة</span>
+                    <span>مجمع زايد التعليمي</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. VIRTUAL LABS VIEW -->
+        <section id="view-labs" class="w-full max-w-6xl hidden flex-col items-center">
+            <div class="w-full bg-white rounded-2xl shadow-2xl border border-slate-200 p-6">
+                <div class="flex flex-wrap justify-between items-center mb-6 border-b pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800">مختبر نيوتن الافتراضي التفاعلي</h2>
+                        <p class="text-xs text-slate-500 mt-1">اختبري القوانين الفيزيائية بنفسك عبر محاكاة ثلاثية الأبعاد دقيقة.</p>
+                    </div>
+                    <div class="flex gap-2 mt-2 sm:mt-0">
+                        <button onclick="switchLab(1)" id="lab-btn-1" class="px-4 py-2 rounded-xl text-sm font-bold transition bg-teal-600 text-white shadow">محطة 1: القصور الذاتي</button>
+                        <button onclick="switchLab(2)" id="lab-btn-2" class="px-4 py-2 rounded-xl text-sm font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200">محطة 2: القوة والتسارع</button>
+                        <button onclick="switchLab(3)" id="lab-btn-3" class="px-4 py-2 rounded-xl text-sm font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200">محطة 3: الفعل ورد الفعل</button>
+                    </div>
+                </div>
+
+                <!-- Lab Content Area -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Controls Column -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between space-y-4">
+                        <div>
+                            <h3 id="lab-title" class="text-lg font-bold text-teal-800 mb-2">محطة القصور الذاتي وحزام الأمان</h3>
+                            <p id="lab-desc" class="text-xs text-slate-600 leading-relaxed mb-4">
+                                سيارة تسير بسرعة ثابتة. عند الضغط على الفرامل فجأة، لاحظي استمرار اندفاع الراكب إلى الأمام نتيجة القصور الذاتي.
+                            </p>
+                            
+                            <!-- Dynamic Controls for Each Lab -->
+                            <div id="lab-controls" class="space-y-4">
+                                <!-- Injected via JS -->
+                            </div>
+                        </div>
+
+                        <div class="bg-teal-50 p-4 rounded-xl border border-teal-200">
+                            <h4 class="font-bold text-teal-900 text-xs mb-1"><i class="fa-solid fa-lightbulb text-amber-500"></i> ملاحظة علمية:</h4>
+                            <p id="lab-explanation" class="text-xs text-teal-800 leading-relaxed">
+                                الجسم يحافظ على حالته الحركية ما لم تؤثر فيه قوة خارجية تغيرها.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 3D Simulation Canvas Column -->
+                    <div class="lg:col-span-2 bg-slate-900 rounded-2xl overflow-hidden relative shadow-inner min-h-[420px] flex items-center justify-center">
+                        <div id="canvas-container" class="w-full h-full absolute inset-0"></div>
+                        <!-- Overlay HUD -->
+                        <div class="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-lg text-xs font-mono border border-white/10 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                            <span>محاكاة 3D حية</span>
+                        </div>
+                        <div id="lab-hud-stats" class="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-md text-white p-3 rounded-xl text-xs flex justify-around items-center border border-white/10">
+                            <!-- Stats injected -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. QUIZ VIEW (NEWTON'S CHALLENGE) -->
+        <section id="view-quiz" class="w-full max-w-4xl hidden flex-col items-center">
+            <div class="w-full bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 md:p-10">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800">تحدي عالمة نيوتن (15 سؤالاً تفاعلياً)</h2>
+                        <p class="text-xs text-slate-500 mt-1">اختبري فهمك لقوانين الحركة من خلال أسئلة متدرجة الصعوبة مع تصحيح فوري.</p>
+                    </div>
+                    <div id="quiz-progress-badge" class="bg-purple-100 text-purple-800 px-4 py-1.5 rounded-full text-xs font-bold">
+                        السؤال <span id="q-current">1</span> من 15
+                    </div>
+                </div>
+
+                <div id="quiz-box" class="space-y-6">
+                    <!-- Injected via JS -->
+                </div>
+
+                <div id="quiz-results" class="hidden text-center space-y-4 py-8">
+                    <div class="w-24 h-24 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-lg">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <h3 class="text-3xl font-black text-slate-800">أهلاً بكِ في قائمة العالمات المتفوقات!</h3>
+                    <p class="text-slate-600 text-base" id="quiz-score-text">لقد أتممتِ التحدي بنجاح متميز.</p>
+                    <button onclick="resetQuiz()" class="px-6 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl font-bold shadow transition">
+                        إعادة التحدي العلمي
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">
+        <p>جميع الحقوق محفوظة © 2026–2027 | مجمع زايد التعليمي – الساف | معلمة المادة: منى خميس علي</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- Navigation & View Management ---
+        function switchView(viewId) {
+            ['intro', 'book', 'labs', 'quiz'].forEach(id => {
+                const el = document.getElementById(`view-${id}`);
+                if (id === viewId) {
+                    el.classList.remove('hidden');
+                    el.classList.add('flex');
+                } else {
+                    el.classList.add('hidden');
+                    el.classList.remove('flex');
+                }
+            });
+
+            if (viewId === 'labs') {
+                initLabScene(currentLab);
+            } else {
+                stopLabLoop();
+            }
+        }
+
+        // --- Interactive Book Engine ---
+        let currentPage = 1;
+        const totalPages = 4;
+
+        const bookPages = [
+            {
+                title: "الصفحة الافتتاحية: مقدمة في قوانين نيوتن",
+                content: `
+                    <div class="space-y-6 text-right">
+                        <span class="bg-teal-100 text-teal-800 text-xs px-3 py-1 rounded-full font-bold">الفصل التمهيدي</span>
+                        <h3 class="text-2xl font-black text-slate-800">رحلتنا في عالم قوانين نيوتن للحركة</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            في هذا الكتاب التفاعلي، سنستكشف كيف تتحرك الأشياء ولماذا تسكن. وضع العالم العبقري <strong>سير إسحاق نيوتن</strong> ثلاثة قوانين أساسية فسرت حركة الكواكب والسيارات والصواريخ.
+                        </p>
+                        <div class="grid grid-cols-3 gap-3 pt-2">
+                            <div class="bg-teal-50 p-3 rounded-xl border border-teal-200 text-center">
+                                <i class="fa-solid fa-car text-teal-700 text-xl mb-1"></i>
+                                <h4 class="font-bold text-xs text-slate-800">القانـون الأول</h4>
+                                <p class="text-[10px] text-slate-500">القصور الذاتي</p>
+                            </div>
+                            <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 text-center">
+                                <i class="fa-solid fa-gauge-high text-purple-700 text-xl mb-1"></i>
+                                <h4 class="font-bold text-xs text-slate-800">القانـون الثاني</h4>
+                                <p class="text-[10px] text-slate-500">القوة والتسارع</p>
+                            </div>
+                            <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-center">
+                                <i class="fa-solid fa-rocket text-amber-700 text-xl mb-1"></i>
+                                <h4 class="font-bold text-xs text-slate-800">القانـون الثالث</h4>
+                                <p class="text-[10px] text-slate-500">الفعل ورد الفعل</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-teal-900 to-indigo-950 p-6 rounded-2xl text-white flex flex-col items-center justify-center relative overflow-hidden shadow-inner min-h-[300px]">
+                        <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#0d9488_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                        <div class="w-24 h-24 bg-teal-500/20 rounded-full flex items-center justify-center mb-4 border border-teal-400/30">
+                            <i class="fa-solid fa-graduation-cap text-4xl text-teal-300"></i>
+                        </div>
+                        <h4 class="text-lg font-bold mb-1">مجمع زايد التعليمي – الساف</h4>
+                        <p class="text-xs text-teal-200">الصف السابع (بريدج) • المعلمة: منى خميس علي</p>
+                        <button onclick="switchView('labs');" class="mt-6 px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-900 rounded-xl text-xs font-bold transition shadow">
+                            انتقلي إلى المختبر الفوري <i class="fa-solid fa-arrow-left mr-1"></i>
+                        </button>
+                    </div>
+                `
+            },
+            {
+                title: "الفصل الأول: قانون نيوتن الأول (القصور الذاتي)",
+                content: `
+                    <div class="space-y-4 text-right">
+                        <span class="bg-teal-100 text-teal-800 text-xs px-3 py-1 rounded-full font-bold">الفصل الأول</span>
+                        <h3 class="text-xl font-black text-slate-800">قانون نيوتن الأول – القصور الذاتي</h3>
+                        <p class="text-slate-600 text-xs leading-relaxed">
+                            <strong>التعريف:</strong> يبقى الجسم الساكن ساكنًا، والجسم المتحرك بسرعة ثابتة وفي خط مستقيم مستمرًا في حركته، ما لم تؤثر فيه قوة محصلة غير صفرية.
+                        </p>
+                        <div class="space-y-2 bg-slate-50 p-4 rounded-xl border">
+                            <h4 class="font-bold text-xs text-slate-800"><i class="fa-solid fa-lightbulb text-amber-500 ml-1"></i> أمثلة من حياتنا اليومية:</h4>
+                            <ul class="text-xs text-slate-600 list-disc list-inside space-y-1">
+                                <li>اندفاع الراكب للأمام عند توقف السيارة فجأة.</li>
+                                <li>استمرار كرة القدم في التدحرج على الأرض لولا وجود الاحتكاك.</li>
+                            </ul>
+                        </div>
+                        <button onclick="switchLab(1); switchView('labs');" class="w-full py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-flask"></i> افتحي محطة القصور الذاتي في المختبر
+                        </button>
+                    </div>
+                    <div class="bg-slate-900 rounded-2xl p-6 text-white flex flex-col items-center justify-center relative min-h-[300px]">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
+                        <i class="fa-solid fa-car-burst text-6xl text-teal-400 mb-4 animate-bounce"></i>
+                        <h4 class="font-bold text-sm">تأثير القصور الذاتي</h4>
+                        <p class="text-xs text-slate-400 text-center mt-1">الكتلة تقاوم التغير في حالتها الحركية.</p>
+                    </div>
+                `
+            },
+            {
+                title: "الفصل الثاني: قانون نيوتن الثاني (القوة والتسارع)",
+                content: `
+                    <div class="space-y-4 text-right">
+                        <span class="bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full font-bold">الفصل الثاني</span>
+                        <h3 class="text-xl font-black text-slate-800">قانون نيوتن الثاني – القوة والتسارع</h3>
+                        <p class="text-slate-600 text-xs leading-relaxed">
+                            <strong>التعريف:</strong> يتناسب تسارع الجسم طرديًا مع القوة المحصلة المؤثرة فيه وعكسيًا مع كتلته.
+                        </p>
+                        <div class="bg-purple-50 p-4 rounded-xl border border-purple-200">
+                            <p class="text-sm font-mono font-bold text-purple-900 text-center">F = m × a</p>
+                            <p class="text-[11px] text-purple-800 mt-2 text-center">القوة (N) = الكتلة (kg) × التسارع (m/s²)</p>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border text-xs">
+                            <p class="font-bold text-slate-800 mb-1">مثال محلول:</p>
+                            <p class="text-slate-600">قوة 20 N تؤثر على كتلة 5 kg ← التسارع = 20 ÷ 5 = 4 m/s².</p>
+                        </div>
+                        <button onclick="switchLab(2); switchView('labs');" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-flask"></i> افتحي محطة القوة والتسارع
+                        </button>
+                    </div>
+                    <div class="bg-slate-900 rounded-2xl p-6 text-white flex flex-col items-center justify-center relative min-h-[300px]">
+                        <i class="fa-solid fa-weight-scale text-6xl text-purple-400 mb-4 animate-pulse"></i>
+                        <h4 class="font-bold text-sm">العلاقة بين القوة والكتلة</h4>
+                        <p class="text-xs text-slate-400 text-center mt-1">زيادة الكتلة تقلل التسارع بثبات القوة.</p>
+                    </div>
+                `
+            },
+            {
+                title: "الفصل الثالث: قانون نيوتن الثالث (الفعل ورد الفعل)",
+                content: `
+                    <div class="space-y-4 text-right">
+                        <span class="bg-amber-100 text-amber-800 text-xs px-3 py-1 rounded-full font-bold">الفصل الثالث</span>
+                        <h3 class="text-xl font-black text-slate-800">قانون نيوتن الثالث – الفعل ورد الفعل</h3>
+                        <p class="text-slate-600 text-xs leading-relaxed">
+                            <strong>التعريف:</strong> لكل قوة فعل قوة رد فعل مساوية لها في المقدار ومعاكسة لها في الاتجاه، وتؤثر القوتان في جسمين مختلفين.
+                        </p>
+                        <div class="space-y-2 bg-slate-50 p-4 rounded-xl border">
+                            <h4 class="font-bold text-xs text-slate-800"><i class="fa-solid fa-rocket text-amber-500 ml-1"></i> تطبيقات عملية:</h4>
+                            <ul class="text-xs text-slate-600 list-disc list-inside space-y-1">
+                                <li>انطلاق الصواريخ الفضائية نحو الأعلى نتيجة اندفاع الغازات للأسفل.</li>
+                                <li>حركة السباح في الماء (يدفع الماء للخلف فيندفع للأمام).</li>
+                            </ul>
+                        </div>
+                        <button onclick="switchLab(3); switchView('labs');" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-flask"></i> افتحي محطة الصاروخ ورد الفعل
+                        </button>
+                    </div>
+                    <div class="bg-slate-900 rounded-2xl p-6 text-white flex flex-col items-center justify-center relative min-h-[300px]">
+                        <i class="fa-solid fa-rocket text-6xl text-amber-400 mb-4 animate-bounce"></i>
+                        <h4 class="font-bold text-sm">قوتان متساويتان متعاكستان</h4>
+                        <p class="text-xs text-slate-400 text-center mt-1">الفعل ورد الفعل لا يلغيان بعضهما لأنهما على جسمين مختلفين.</p>
+                    </div>
+                `
+            }
+        ];
+
+        function renderBookPage() {
+            document.getElementById('current-page-num').innerText = currentPage;
+            const pageData = bookPages[currentPage - 1];
+            document.getElementById('book-page-content').innerHTML = pageData.content;
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderBookPage();
+        }
+
+        // --- 3D Physics Labs Engine (Three.js) ---
+        let currentLab = 1;
+        let scene, camera, renderer, animationFrameId;
+        let previousFrameTime = null;
+        let labObjects = {};
+        let labState = {
+            carSpeed: 5,
+            beltBraking: false,
+            force: 20,
+            mass: 5,
+            rocketFired: false,
+            rocketPosY: 0
+        };
+
+        function switchLab(labNum) {
+            currentLab = labNum;
+            [1, 2, 3].forEach(i => {
+                const btn = document.getElementById(`lab-btn-${i}`);
+                if (i === labNum) {
+                    btn.className = "px-4 py-2 rounded-xl text-sm font-bold transition bg-teal-600 text-white shadow";
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-sm font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200";
+                }
+            });
+            initLabScene(labNum);
+        }
+
+        function stopLabLoop() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = null; previousFrameTime = null;
+        }
+
+        function initLabScene(labNum) {
+            stopLabLoop();
+            const container = document.getElementById('canvas-container');
+            if (scene) scene.traverse(obj => {
+                if (obj.geometry) obj.geometry.dispose();
+                if (obj.material) (Array.isArray(obj.material) ? obj.material : [obj.material]).forEach(m => m.dispose());
+            });
+            if (renderer) renderer.dispose();
+            labObjects = {};
+            container.innerHTML = "";
+            if (!window.THREE) {
+                container.innerHTML = '<p style="color:white;padding:24px">تعذر تحميل المختبر. تحققي من اتصال الإنترنت ثم أعيدي تحميل الصفحة.</p>';
+                return;
+            }
+
+            // Setup Three.js Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a);
+
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 4, 10);
+            camera.lookAt(0, 0, 0);
+
+            try { renderer = new THREE.WebGLRenderer({ antialias: true }); }
+            catch (error) {
+                container.innerHTML = '<p style="color:white;padding:24px">يتطلب المختبر متصفحًا يدعم الرسوم ثلاثية الأبعاد WebGL. جرّبي متصفحًا آخر أو تفعيل تسريع الرسومات.</p>';
+                return;
+            }
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            dirLight.position.set(5, 10, 7);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            // Build Lab Specific Elements
+            if (labNum === 1) setupInertiaLab();
+            else if (labNum === 2) setupForceLab();
+            else if (labNum === 3) setupRocketLab();
+
+            // Window Resize Handler
+            window.addEventListener('resize', onWindowResize);
+
+            // Start Animation Loop
+            animateLab();
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            if (!container || !renderer || !container.clientWidth || !container.clientHeight) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function setupInertiaLab() {
+            document.getElementById('lab-title').innerText = "محطة 1: القصور الذاتي وحزام الأمان";
+            document.getElementById('lab-desc').innerText = "سيارة تسير على مسار. اضغطي على زر 'توقف فجائي' لتلاحظي اندفاع الراكب إلى الأمام.";
+            document.getElementById('lab-controls').innerHTML = `
+                <button onclick="triggerInertiaBrake()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl shadow transition text-sm">
+                    <i class="fa-solid fa-car-burst ml-1"></i> توقف فجائي للسيارة
+                </button>
+                <button onclick="resetInertiaLab()" class="w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition text-xs">
+                    إعادة وضع الحركة
+                </button>
+            `;
+            document.getElementById('lab-explanation').innerText = "القانون الأول: يستمر الراكب في حركته بنفس سرعة السيارة عند توقفها المفاجئ لعدم وجود قوة محصلة توقفه فورًا. حزام الأمان يؤثر بقوة تحد من اندفاع الراكب؛ النموذج يعرض راكبًا دون حزام.";
+
+            // 3D Objects for Inertia Lab
+            const roadGeo = new THREE.BoxGeometry(30, 0.2, 4);
+            const roadMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
+            const road = new THREE.Mesh(roadGeo, roadMat);
+            road.position.y = -1;
+            scene.add(road);
+
+            // Car Group
+            const carGroup = new THREE.Group();
+            const bodyGeo = new THREE.BoxGeometry(3, 1, 1.8);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0x0d9488 });
+            const carBody = new THREE.Mesh(bodyGeo, bodyMat);
+            carBody.position.y = -0.3;
+            carGroup.add(carBody);
+
+            // Passenger
+            const passengerGeo = new THREE.CylinderGeometry(0.3, 0.3, 1.2, 16);
+            const passengerMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e });
+            const passenger = new THREE.Mesh(passengerGeo, passengerMat);
+            passenger.position.set(-0.3, 0.4, 0);
+            passenger.name = "passenger";
+            carGroup.add(passenger);
+
+            carGroup.position.set(-8, 0, 0);
+            scene.add(carGroup);
+            labObjects.car = carGroup;
+            labObjects.passenger = passenger;
+            labState.beltBraking = false;
+            document.getElementById('lab-hud-stats').innerHTML = '<span>الراكب دون حزام: يستمر في الحركة عند توقف السيارة</span>';
+        }
+
+        let brakeProgress = 0;
+        function triggerInertiaBrake() {
+            labState.beltBraking = true;
+            brakeProgress = 0;
+        }
+        function resetInertiaLab() {
+            labState.beltBraking = false;
+            if (labObjects.car) labObjects.car.position.x = -8;
+            if (labObjects.passenger) labObjects.passenger.position.x = -0.3;
+        }
+
+        function setupForceLab() {
+            document.getElementById('lab-title').innerText = "محطة 2: القوة والتسارع (F = m × a)";
+            document.getElementById('lab-desc').innerText = "تحكمي بمقدار القوة المؤثرة والكتلة، واحصلي على التسارع الفعلي للعربة.";
+            document.getElementById('lab-controls').innerHTML = `
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 flex justify-between"><span>القوة (F):</span> <span id="val-f">20 N</span></label>
+                        <input type="range" min="5" max="50" value="20" step="5" oninput="updateForceParams(this.value, 'f')" class="w-full accent-teal-600">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 flex justify-between"><span>الكتلة (m):</span> <span id="val-m">5 kg</span></label>
+                        <input type="range" min="1" max="20" value="5" step="1" oninput="updateForceParams(this.value, 'm')" class="w-full accent-teal-600">
+                    </div>
+                    <button onclick="startForceSimulation()" class="w-full py-3 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow transition text-sm">
+                        <i class="fa-solid fa-play ml-1"></i> ابدئي التجربة الحسابية
+                    </button>
+                </div>
+            `;
+            document.querySelectorAll('#lab-controls input')[0].value = labState.force;
+            document.querySelectorAll('#lab-controls input')[1].value = labState.mass;
+            document.getElementById('val-f').innerText = labState.force + ' N';
+            document.getElementById('val-m').innerText = labState.mass + ' kg';
+            updateForceDisplay();
+            document.getElementById('lab-explanation').innerText = "نموذج مثالي دون احتكاك؛ متر واحد يقابل وحدة في المشهد. التسارع (a) = القوة المحصلة (F) ÷ الكتلة (m). كلما زادت القوة زاد التسارع، وكلما زادت الكتلة قل التسارع.";
+
+            // 3D Objects for Force Lab
+            const trackGeo = new THREE.BoxGeometry(35, 0.2, 3);
+            const trackMat = new THREE.MeshStandardMaterial({ color: 0x475569 });
+            scene.add(new THREE.Mesh(trackGeo, trackMat));
+
+            const cartGeo = new THREE.BoxGeometry(2, 1, 1.2);
+            const cartMat = new THREE.MeshStandardMaterial({ color: 0x8b5cf6 });
+            const cart = new THREE.Mesh(cartGeo, cartMat);
+            cart.position.set(-12, 0.6, 0);
+            scene.add(cart);
+            labObjects.cart = cart;
+            labState.cartMoving = false;
+        }
+
+        function updateForceParams(val, type) {
+            if(type === 'f') {
+                labState.force = parseFloat(val);
+                document.getElementById('val-f').innerText = val + " N";
+            } else {
+                labState.mass = parseFloat(val);
+                document.getElementById('val-m').innerText = val + " kg";
+            }
+            updateForceDisplay();
+        }
+
+        function updateForceDisplay() {
+            const acc = (labState.force / labState.mass).toFixed(2);
+            document.getElementById('lab-hud-stats').innerHTML = `
+                <span>القوة: <strong>${labState.force} N</strong></span>
+                <span>الكتلة: <strong>${labState.mass} kg</strong></span>
+                <span class="text-teal-400">التسارع: <strong>${acc} m/s²</strong></span>
+            `;
+        }
+
+        function startForceSimulation() {
+            if(labObjects.cart) labObjects.cart.position.x = -12;
+            labState.cartVelocity = 0;
+            labState.cartMoving = true;
+        }
+
+        function setupRocketLab() {
+            document.getElementById('lab-title').innerText = "محطة 3: قانون نيوتن الثالث (الصاروخ ورد الفعل)";
+            document.getElementById('lab-desc').innerText = "اضغطي على إطلاق الصاروخ لتشاهدي تدفق غازات الفعل نحو الأسفل ورد الفعل بدفع الصاروخ للأعلى.";
+            document.getElementById('lab-controls').innerHTML = `
+                <button onclick="launchRocket()" class="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow transition text-sm">
+                    <i class="fa-solid fa-rocket ml-1"></i> أطلقي الصاروخ الآن
+                </button>
+                <button onclick="resetRocketLab()" class="w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition text-xs mt-2">
+                    إعادة ضبط المنصة
+                </button>
+            `;
+            document.getElementById('lab-explanation').innerText = "لكل فعل رد فعل مساوٍ له في المقدار ومعاكس له في الاتجاه. غازات الاحتراق تنطلق لأسفل (فعل)، والصاروخ يرتفع لأعلى (رد فعل).";
+
+            // 3D Objects for Rocket Lab
+            const padGeo = new THREE.CylinderGeometry(2, 2, 0.4, 32);
+            const padMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
+            const pad = new THREE.Mesh(padGeo, padMat);
+            pad.position.y = -2;
+            scene.add(pad);
+
+            const rocketGroup = new THREE.Group();
+            const bodyGeo = new THREE.ConeGeometry(0.8, 3, 16);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b });
+            const rocketBody = new THREE.Mesh(bodyGeo, bodyMat);
+            rocketGroup.add(rocketBody);
+
+            rocketGroup.position.set(0, -0.5, 0);
+            scene.add(rocketGroup);
+            labObjects.rocket = rocketGroup;
+            labState.rocketFired = false;
+            labState.rocketPosY = -0.5;
+
+            document.getElementById('lab-hud-stats').innerHTML = `
+                <span>قوة الفعل: <strong>الغازات المتدفقة لأسفل</strong></span>
+                <span class="text-amber-400">رد الفعل: <strong>اندفاع الصاروخ لأعلى</strong></span>
+            `;
+        }
+
+        function launchRocket() {
+            labState.rocketFired = true;
+        }
+
+        function resetRocketLab() {
+            labState.rocketFired = false;
+            labState.rocketPosY = -0.5;
+            if(labObjects.rocket) labObjects.rocket.position.y = -0.5;
+        }
+
+        function animateLab(timestamp) {
+            const dt = previousFrameTime === null || timestamp === undefined ? 0 : Math.min((timestamp - previousFrameTime) / 1000, 0.05);
+            previousFrameTime = timestamp === undefined ? null : timestamp;
+            animationFrameId = requestAnimationFrame(animateLab);
+
+            if (currentLab === 1 && labObjects.car) {
+                if (!labState.beltBraking) {
+                    labObjects.car.position.x += 3 * dt;
+                    if (labObjects.car.position.x > 12) labObjects.car.position.x = -12;
+                } else {
+                    brakeProgress += 3 * dt;
+                    if (labObjects.passenger && brakeProgress < 1.2) {
+                        labObjects.passenger.position.x += 2.4 * dt; // inertia forward motion
+                    }
+                }
+            } else if (currentLab === 2 && labObjects.cart && labState.cartMoving) {
+                const acc = labState.force / labState.mass;
+                labObjects.cart.position.x += labState.cartVelocity * dt + 0.5 * acc * dt * dt;
+                labState.cartVelocity += acc * dt;
+                if (labObjects.cart.position.x >= 14) {
+                    labObjects.cart.position.x = 14;
+                    labState.cartMoving = false;
+                }
+            } else if (currentLab === 3 && labObjects.rocket && labState.rocketFired) {
+                if (labObjects.rocket.position.y < 6) {
+                    labObjects.rocket.position.y += 4.8 * dt;
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // --- Quiz Engine (15 Questions) ---
+        let currentQuizIndex = 0;
+        let score = 0;
+        let questionAnswered = false;
+
+        const quizQuestions = [
+            { q: "ما هو النص الدقيق لقانون نيوتن الأول؟", options: ["يبقى الجسم ساكنًا أو متحركًا بسرعة ثابتة في خط مستقيم ما لم تؤثر فيه قوة محصلة غير صفرية", "F = m * a", "لكل فعل رد فعل", "السرعة تتناسب مع الكتلة"], correct: 0, exp: "ينص القانون الأول على بقاء الجسم على حالته ما لم تؤثر فيه قوة محصلة غير صفرية." },
+            { q: "ماذا يُسمى ميل مقاومة الجسم لتغيير حالته الحركية؟", options: ["التسارع", "القصور الذاتي", "الجاذبية", "الاحتكاك"], correct: 1, exp: "القصور الذاتي هو خاصية مقاومة الجسم لأي تغيير في سرعته أو اتجاهه." },
+            { q: "لماذا يندفع ركاب السيارة للأمام عند التوقف المفاجئ؟", options: ["بسبب الجاذبية", "بسبب القصور الذاتي", "بسبب زيادة السرعة", "بسبب قوة المحرك"], correct: 1, exp: "بسبب القصور الذاتي، يبقى جسم الراكب متحركاً بنفس سرعة السيارة السابقة." },
+            { q: "ما هي الوحدات المستخدمة لقياس القوة في النظام الدولي؟", options: ["الكيلوغرام (kg)", "المتر لكل ثانية (m/s)", "النيوتن (N)", "الجول (J)"], correct: 2, exp: "تقاس القوة بوحدة النيوتن (N)." },
+            { q: "إذا كانت محصلة القوى المؤثرة في جسم ساكن تساوي صفرًا، فما حالته؟", options: ["يتسارع بسرعة", "يبقى ساكنًا", "يتحرك بدائرة", "ينطلق للأعلى"], correct: 1, exp: "القوى المتزنة لا تغير من حالة السكون." },
+            { q: "ما هو القانون الثاني لنيوتن بصيغته الرياضية؟", options: ["F = m / a", "F = m * a", "a = F * m", "F = a / m"], correct: 1, exp: "القانون الثاني: القوة المحصلة تساوي الكتلة مضروبة في التسارع (F = m * a)." },
+            { q: "تؤثر قوة 30 N في جسم كتلته 10 kg، فكم يكون تسارعه؟", options: ["2 m/s²", "3 m/s²", "300 m/s²", "10 m/s²"], correct: 1, exp: "التسارع = 30 ÷ 10 = 3 m/s²." },
+            { q: "إذا ضاعفنا القوة المؤثرة على جسم مع ثبات كتلته، ماذا يحدث لتسارعه؟", options: ["يقل للنصف", "يتضاعف", "يبقى ثابتاً", "يصبح صفراً"], correct: 1, exp: "التسارع يتناسب طردياً مع القوة المؤثرة." },
+            { q: "كيف يتناسب تسارع الجسم مع كتلته بثبات القوة؟", options: ["طردياً", "عكسياً", "لا يتأثر", "تساوي تمامًا"], correct: 1, exp: "يتناسب التسارع عكسياً مع الكتلة (زيادة الكتلة تقلل التسارع)." },
+            { q: "ما هو نص قانون نيوتن الثالث؟", options: ["لكل فعل رد فعل مساوٍ له ومعاكس بالاتجاه", "الكتلة تقاوم التسارع", "الأجسام الساكنة تبقى ساكنة", "السرعة متناسبة مع الزمن"], correct: 0, exp: "ينص قانون نيوتن الثالث على أن القوى تظهر دائماً في أزواج متساوية ومعاكسة." },
+            { q: "لماذا يرتفع الصاروخ إلى الأعلى عند إطلاق غازاته نحو الأسفل؟", options: ["لأن الغازات تدفعه للأعلى برد فعل", "بسبب خفة وزنه المفاجئ", "لأن الأرض تدفعه بعيداً", "بسبب انعدام الجاذبية فقط"], correct: 0, exp: "تدفق الغازات للأسفل هو الفعل، واندفاع الصاروخ للأمام/الأعلى هو رد الفعل." },
+            { q: "قوتان متبادلتان بين جسمين: هل تؤثران في نفس الجسم؟", options: ["نعم دائماً", "لا، تؤثران في جسمين مختلفين", "تؤثران في الوسط فقط", "تعتمد على الكتلة"], correct: 1, exp: "قوة الفعل ورد الفعل تؤثران دائماً في جسمين مختلفين." },
+            { q: "أي مما يلي يمثل تطبيقاً على القصور الذاتي؟", options: ["ارتداء حزام الأمان في السيارة", "إطلاق صاروخ فضائي", "دفع عربة تسوق", "سباحة شخص في حوض"], correct: 0, exp: "حزام الأمان يصمم ليمنع اندفاع الراكب الناتج عن القصور الذاتي." },
+            { q: "إذا دفع شخص جداراً بقوة 50 N، فما مقدار قوة رد فعل الجدار عليه؟", options: ["0 N", "25 N", "50 N", "100 N"], correct: 2, exp: "رد الفعل مساوٍ تماماً في المقدار (50 N) ومعاكس في الاتجاه." },
+            { q: "أي الكميات التالية تعتبر كمية متجهة مرتبطة بقوانين نيوتن؟", options: ["الكتلة فقط", "الزمن فقط", "القوة والتسارع", "المسافة فقط"], correct: 2, exp: "القوة والتسارع كميات متجهة لها مقدار واتجاه." }
+        ];
+
+        function renderQuiz() {
+            if (currentQuizIndex >= quizQuestions.length) {
+                document.getElementById('quiz-box').classList.add('hidden');
+                document.getElementById('quiz-results').classList.remove('hidden');
+                document.getElementById('quiz-score-text').innerText = `لقد أجبتِ بنجاح وحصلتِ على ${score} من ${quizQuestions.length} إجابة صحيحة. أنتِ عالمة متميزة حقاً!`;
+                return;
+            }
+
+            questionAnswered = false;
+            document.getElementById('q-current').innerText = currentQuizIndex + 1;
+            const qData = quizQuestions[currentQuizIndex];
+            
+            let html = `
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800">${currentQuizIndex + 1}. ${qData.q}</h3>
+                    <div class="grid grid-cols-1 gap-2.5">
+            `;
+
+            qData.options.forEach((opt, idx) => {
+                html += `
+                    <button onclick="checkAnswer(${idx})" class="w-full text-right p-3.5 bg-slate-50 hover:bg-teal-50 border border-slate-200 hover:border-teal-300 rounded-xl text-sm font-semibold text-slate-700 transition flex items-center justify-between group">
+                        <span>${opt}</span>
+                        <span class="w-6 h-6 rounded-full bg-slate-200 group-hover:bg-teal-600 group-hover:text-white flex items-center justify-center text-xs transition">${['أ', 'ب', 'ج', 'د'][idx]}</span>
+                    </button>
+                `;
+            });
+
+            html += `</div></div>`;
+            document.getElementById('quiz-box').innerHTML = html;
+        }
+
+        function checkAnswer(selectedIdx) {
+            if (questionAnswered || currentQuizIndex >= quizQuestions.length) return;
+            questionAnswered = true;
+            const qData = quizQuestions[currentQuizIndex];
+            const isCorrect = selectedIdx === qData.correct;
+            if (isCorrect) score++;
+
+            let feedbackHtml = `
+                <div class="p-4 rounded-xl ${isCorrect ? 'bg-emerald-50 border border-emerald-200 text-emerald-900' : 'bg-rose-50 border border-rose-200 text-rose-900'} space-y-2">
+                    <div class="flex items-center gap-2 font-bold text-sm">
+                        <i class="fa-solid ${isCorrect ? 'fa-circle-check text-emerald-600' : 'fa-circle-xmark text-rose-600'}"></i>
+                        <span>${isCorrect ? 'إجابة صحيحة!' : 'إجابة خاطئة!'}</span>
+                    </div>
+                    <p class="text-xs leading-relaxed">${qData.exp}</p>
+                    <button onclick="nextQuizQuestion()" class="mt-3 px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition">
+                        السؤال التالي <i class="fa-solid fa-arrow-left mr-1"></i>
+                    </button>
+                </div>
+            `;
+            document.getElementById('quiz-box').innerHTML = feedbackHtml;
+        }
+
+        function nextQuizQuestion() {
+            if (!questionAnswered) return;
+            questionAnswered = false;
+            currentQuizIndex++;
+            renderQuiz();
+        }
+
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            score = 0;
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-box').classList.remove('hidden');
+            renderQuiz();
+        }
+
+        // --- Audio Guide Simulation (Web Speech API) ---
+        let audioActive = false;
+        function toggleAudioGuide() {
+            audioActive = !audioActive;
+            const icon = document.getElementById('audioIcon');
+            const text = document.getElementById('audioText');
+            if (audioActive) {
+                icon.className = "fa-solid fa-volume-xmark";
+                text.innerText = "إيقاف الصوت";
+                playWelcomeVoice();
+            } else {
+                icon.className = "fa-solid fa-volume-high";
+                text.innerText = "الصوت";
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            }
+        }
+
+        function playWelcomeVoice() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance("مرحبًا بكِ أيتها العالمة الصغيرة في رحلة ممتعة لاكتشاف قوانين نيوتن الثلاثة للحركة. هيا نلاحظ ونجرب ونفسر!");
+                utterance.lang = 'ar-SA';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // --- Initializer on Load ---
+        window.onload = function() {
+            renderBookPage();
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
