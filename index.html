@@ -292,21 +292,21 @@
                             في هذا الكتاب التفاعلي، سنستكشف كيف تتحرك الأشياء ولماذا تسكن. وضع العالم العبقري <strong>سير إسحاق نيوتن</strong> ثلاثة قوانين أساسية فسرت حركة الكواكب والسيارات والصواريخ.
                         </p>
                         <div class="grid grid-cols-3 gap-3 pt-2">
-                            <div class="bg-teal-50 p-3 rounded-xl border border-teal-200 text-center">
+                            <button type="button" onclick="openBookPage(2)" aria-label="افتحي صفحة قانون نيوتن الأول" class="bg-teal-50 p-3 rounded-xl border border-teal-200 text-center cursor-pointer hover:shadow-md focus:ring-2 focus:ring-teal-500 transition">
                                 <i class="fa-solid fa-car text-teal-700 text-xl mb-1"></i>
                                 <h4 class="font-bold text-xs text-slate-800">القانـون الأول</h4>
                                 <p class="text-[10px] text-slate-500">القصور الذاتي</p>
-                            </div>
-                            <div class="bg-purple-50 p-3 rounded-xl border border-purple-200 text-center">
+                            </button>
+                            <button type="button" onclick="openBookPage(3)" aria-label="افتحي صفحة قانون نيوتن الثاني" class="bg-purple-50 p-3 rounded-xl border border-purple-200 text-center cursor-pointer hover:shadow-md focus:ring-2 focus:ring-teal-500 transition">
                                 <i class="fa-solid fa-gauge-high text-purple-700 text-xl mb-1"></i>
                                 <h4 class="font-bold text-xs text-slate-800">القانـون الثاني</h4>
                                 <p class="text-[10px] text-slate-500">القوة والتسارع</p>
-                            </div>
-                            <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-center">
+                            </button>
+                            <button type="button" onclick="openBookPage(4)" aria-label="افتحي صفحة قانون نيوتن الثالث" class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-center cursor-pointer hover:shadow-md focus:ring-2 focus:ring-teal-500 transition">
                                 <i class="fa-solid fa-rocket text-amber-700 text-xl mb-1"></i>
                                 <h4 class="font-bold text-xs text-slate-800">القانـون الثالث</h4>
                                 <p class="text-[10px] text-slate-500">الفعل ورد الفعل</p>
-                            </div>
+                            </button>
                         </div>
                     </div>
                     <div class="bg-gradient-to-br from-teal-900 to-indigo-950 p-6 rounded-2xl text-white flex flex-col items-center justify-center relative overflow-hidden shadow-inner min-h-[300px]">
@@ -413,6 +413,11 @@
             document.getElementById('book-page-content').innerHTML = pageData.content;
             document.getElementById('book-prev').disabled = currentPage === 1;
             document.getElementById('book-next').disabled = currentPage === totalPages;
+        }
+
+        function openBookPage(page) {
+            currentPage = Math.max(1, Math.min(totalPages, page));
+            switchView('book');
         }
 
         function changePage(direction) {
