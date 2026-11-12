@@ -41,6 +41,7 @@
             background: #0d9488;
             border-radius: 4px;
         }
+        button:disabled { opacity: .45; cursor: default; }
         canvas {
             display: block;
             width: 100% !important;
@@ -118,6 +119,7 @@
                                 <i class="fa-solid fa-book text-4xl text-teal-200"></i>
                             </div>
                             <h3 class="text-xl font-bold mb-2">كتاب نيوتن المجسم التفاعلي</h3>
+                            <a href="#book" onclick="switchView('book'); return false;" style="display:inline-block;position:relative;z-index:1;background:#14b8a6;color:#fff;padding:12px 24px;border-radius:12px;margin-bottom:12px;font-weight:bold">افتحي الكتاب التفاعلي</a>
                             <p class="text-xs text-teal-200 max-w-xs">صفحات ثلاثية الأبعاد، محاكاة حقيقية، وأسئلة تفاعلية مستوحاة من أحدث المناهج.</p>
                         </div>
                     </div>
@@ -129,10 +131,10 @@
         <section id="view-book" class="w-full max-w-6xl hidden flex-col items-center">
             <div class="w-full flex justify-between items-center mb-4 bg-white p-3 rounded-xl shadow-sm border border-slate-200">
                 <div class="flex items-center gap-2">
-                    <button onclick="changePage(-1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold text-sm transition flex items-center gap-1">
+                    <button id="book-prev" type="button" onclick="changePage(-1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold text-sm transition flex items-center gap-1">
                         <i class="fa-solid fa-arrow-right"></i> الصفحة السابقة
                     </button>
-                    <button onclick="changePage(1)" class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-semibold text-sm transition flex items-center gap-1">
+                    <button id="book-next" type="button" onclick="changePage(1)" class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-semibold text-sm transition flex items-center gap-1">
                         الصفحة التالية <i class="fa-solid fa-arrow-left"></i>
                     </button>
                 </div>
@@ -256,6 +258,7 @@
         function switchView(viewId) {
             ['intro', 'book', 'labs', 'quiz'].forEach(id => {
                 const el = document.getElementById(`view-${id}`);
+                el.style.display = id === viewId ? "flex" : "none";
                 if (id === viewId) {
                     el.classList.remove('hidden');
                     el.classList.add('flex');
@@ -265,6 +268,8 @@
                 }
             });
 
+            if (viewId === 'book') renderBookPage();
+            if (location.hash !== '#' + viewId) history.replaceState(null, '', '#' + viewId);
             if (viewId === 'labs') {
                 initLabScene(currentLab);
             } else {
@@ -333,7 +338,7 @@
                                 <li>استمرار كرة القدم في التدحرج على الأرض لولا وجود الاحتكاك.</li>
                             </ul>
                         </div>
-                        <button onclick="switchLab(1); switchView('labs');" class="w-full py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                        <button onclick="currentLab=1; switchView('labs');" class="w-full py-2.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-flask"></i> افتحي محطة القصور الذاتي في المختبر
                         </button>
                     </div>
@@ -362,7 +367,7 @@
                             <p class="font-bold text-slate-800 mb-1">مثال محلول:</p>
                             <p class="text-slate-600">قوة 20 N تؤثر على كتلة 5 kg ← التسارع = 20 ÷ 5 = 4 m/s².</p>
                         </div>
-                        <button onclick="switchLab(2); switchView('labs');" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                        <button onclick="currentLab=2; switchView('labs');" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-flask"></i> افتحي محطة القوة والتسارع
                         </button>
                     </div>
@@ -389,7 +394,7 @@
                                 <li>حركة السباح في الماء (يدفع الماء للخلف فيندفع للأمام).</li>
                             </ul>
                         </div>
-                        <button onclick="switchLab(3); switchView('labs');" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                        <button onclick="currentLab=3; switchView('labs');" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-flask"></i> افتحي محطة الصاروخ ورد الفعل
                         </button>
                     </div>
@@ -406,6 +411,8 @@
             document.getElementById('current-page-num').innerText = currentPage;
             const pageData = bookPages[currentPage - 1];
             document.getElementById('book-page-content').innerHTML = pageData.content;
+            document.getElementById('book-prev').disabled = currentPage === 1;
+            document.getElementById('book-next').disabled = currentPage === totalPages;
         }
 
         function changePage(direction) {
@@ -868,10 +875,15 @@
         }
 
         // --- Initializer on Load ---
-        window.onload = function() {
-            renderBookPage();
-            renderQuiz();
-        };
+        // Initialize immediately: school networks may delay fonts and other resources.
+        renderBookPage();
+        renderQuiz();
+        function openLinkedView() {
+            const view = location.hash.slice(1);
+            switchView(['intro', 'book', 'labs', 'quiz'].includes(view) ? view : 'intro');
+        }
+        window.addEventListener('hashchange', openLinkedView);
+        openLinkedView();
     </script>
 </body>
 </html>
